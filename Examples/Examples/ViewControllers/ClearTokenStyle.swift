@@ -1,30 +1,9 @@
 //
-//  Programmatically.swift
-//  Examples
-//
-//  Created by Khawar Shahzad on 01/01/2015.
-//  Copyright (c) 2015 Khawar Shahzad. All rights reserved.
-//
-//  Permission is hereby granted, free of charge, to any person obtaining a copy
-//  of this software and associated documentation files (the "Software"), to
-//  deal in the Software without restriction, including without limitation the
-//  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-//  sell copies of the Software, and to permit persons to whom the Software is
-//  furnished to do so, subject to the following conditions:
-//
-//  The above copyright notice and this permission notice shall be included in
-//  all copies or substantial portions of the Software.
-//
-//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-//  OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-//  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-//  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//  ClearTokenStyle.swift
 
 import UIKit
 
-class Programmatically: UIViewController {
+class ClearTokenStyle: UIViewController {
     let names = List.names()
     var tokenView: KSTokenView = KSTokenView(frame: .zero)
     @IBOutlet weak var shouldChangeSwitch: UISwitch!
@@ -47,16 +26,23 @@ class Programmatically: UIViewController {
         tokenView.paddingX = 5
         tokenView.marginY = 0
         tokenView.placeholderFont = UIFont.systemFont(ofSize: 14)
-
+        
         view.addSubview(tokenView)
         tokenView.setNeedsDisplay()
         tokenView.setNeedsLayout()
         
-        for i in 0...10 {
-            let token: KSToken = KSToken(title: names[i], object: nil)
-            tokenView.addToken(token)
-        }
+        //        for i in 0...10 {
+        //            let token: KSToken = KSToken(title: names[i], object: nil)
+        //            tokenView.addToken(token)
+        //        }
         
+        let textField = UITextField(frame: CGRect(x: 0, y: view.frame.height - 30, width: 200, height: 30))
+        textField.borderStyle = UITextBorderStyle.line
+        textField.text = "myString"
+        textField.backgroundColor = UIColor.red
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.black.cgColor
+        view.addSubview(textField)
     }
     
     @IBAction func addToken(sender: AnyObject) {
@@ -94,7 +80,7 @@ class Programmatically: UIViewController {
     
 }
 
-extension Programmatically: KSTokenViewDelegate {
+extension ClearTokenStyle: KSTokenViewDelegate {
     func tokenView(_ tokenView: KSTokenView, performSearchWithString string: String, completion: ((_ results: Array<AnyObject>) -> Void)?) {
         var data: Array<String> = []
         for value: String in names {
@@ -115,7 +101,7 @@ extension Programmatically: KSTokenViewDelegate {
             token.tokenTextColor = UIColor.black
         }
         
-//        token.darkRatio = 1
+        //        token.darkRatio = 1
         token.tokenTextColor = UIColor(red: 60.0/255.0, green: 110.0/255.0, blue: 211.0/255.0, alpha: 1)
         
         return token

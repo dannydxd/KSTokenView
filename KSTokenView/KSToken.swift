@@ -24,7 +24,6 @@
 
 import UIKit
 
-
 //MARK: - KSToken
 //__________________________________________________________________________________
 //
@@ -71,6 +70,12 @@ open class KSToken : UIControl {
    ///Token border color
    open var borderColor: UIColor = UIColor.black
    
+    open var backgroundStyle: KSTokenViewStyle?
+    
+    open var cachedWidth: CGFloat?
+    open var textRect: CGRect?
+    open var rectangleFontAttributes: [String : Any]?
+    
    /// default is 200. Maximum width of token. After maximum limit is reached title is truncated at end with '...'
    fileprivate var _maxWidth: CGFloat? = 200
    open var maxWidth: CGFloat {
@@ -101,16 +106,29 @@ open class KSToken : UIControl {
    }
    
    convenience public init(title: String) {
-      self.init(title: title, object: title as AnyObject?);
+    self.init(title: title, object: title as AnyObject?);
    }
    
-   public init(title: String, object: AnyObject?) {
+    public init(title: String, object: AnyObject?) {
       self.title = title
       self.object = object
       super.init(frame: CGRect.zero)
-      backgroundColor = UIColor.clear
    }
    
+    func addDelimiter() {
+        if let style = backgroundStyle, style == .clear, let lastChar = title.characters.last, String(lastChar) != ","  {
+            title.append(",")
+            setNeedsDisplay()
+        }
+    }
+    
+    func removeDelimiter() {
+        if let style = backgroundStyle, style == .clear, let lastChar = title.characters.last, String(lastChar) == "," {
+            title = title.substring(to: title.index(before: title.endIndex))
+            setNeedsDisplay()
+        }
+    }
+    
    //MARK: - Drawing code
    //__________________________________________________________________________________
    //
@@ -119,9 +137,9 @@ open class KSToken : UIControl {
       let context = UIGraphicsGetCurrentContext()
       
       //// Rectangle Drawing
-      
+    
       // fill background
-      let rectanglePath = UIBezierPath(roundedRect: rect, cornerRadius: 15)
+      let rectanglePath = UIBezierPath(roundedRect: rect, cornerRadius: layer.cornerRadius)
       
       var textColor: UIColor
       var backgroundColor: UIColor
@@ -147,8 +165,8 @@ open class KSToken : UIControl {
       backgroundColor.setFill()
       rectanglePath.fill()
       
-      var paddingX: CGFloat = 0.0
-      var font = UIFont.systemFont(ofSize: 14)
+      var paddingX: CGFloat = 5.0
+      var font = UIFont.systemFont(ofSize: 16)
       var tokenField: KSTokenField? {
          return superview! as? KSTokenField
       }
@@ -161,15 +179,11 @@ open class KSToken : UIControl {
       let rectangleTextContent = title
       let rectangleStyle = NSMutableParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
       rectangleStyle.lineBreakMode = NSLineBreakMode.byTruncatingTail
-      rectangleStyle.alignment = NSTextAlignment.center
       let rectangleFontAttributes = [NSFontAttributeName: font, NSForegroundColorAttributeName: textColor, NSParagraphStyleAttributeName: rectangleStyle] as [String : Any]
-      
       let maxDrawableHeight = max(rect.height , font.lineHeight)
       let textHeight: CGFloat = KSUtils.getRect(rectangleTextContent as NSString, width: rect.width, height: maxDrawableHeight , font: font).size.height
-      
-      
-      let textRect = CGRect(x: rect.minX + paddingX, y: rect.minY + (maxDrawableHeight - textHeight) / 2, width: min(maxWidth, rect.width) - (paddingX*2), height: maxDrawableHeight)
-      
+        let tokenWidth = cachedWidth ?? min(maxWidth, rect.width)
+        let textRect = CGRect(x: rect.minX + paddingX, y: rect.minY + (maxDrawableHeight - textHeight) / 2, width: tokenWidth-paddingX, height: maxDrawableHeight)
       rectangleTextContent.draw(in: textRect, withAttributes: rectangleFontAttributes)
       
       #if swift(>=2.3)
@@ -181,12 +195,16 @@ open class KSToken : UIControl {
          context.clip(to: rect)
          context.restoreGState()
       #endif
-      
+//    layer.borderColor = UIColor.blue.cgColor
+//    layer.borderWidth = 1
+
       // Border
       if (borderWidth > 0.0 && borderColor != UIColor.clear) {
          borderColor.setStroke()
          rectanglePath.lineWidth = borderWidth
          rectanglePath.stroke()
       }
+    
+    
    }
 }

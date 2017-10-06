@@ -34,7 +34,7 @@ class Autolayout: UIViewController {
         tokenView.delegate = self
         tokenView.promptText = "Top: "
         tokenView.placeholder = "Type to search"
-        tokenView.descriptionText = "Languages"
+        tokenView.descriptionText = NSLocalizedString("%d Languages", comment: "description displayed representing all the keywords listed, when collapsed")
         tokenView.maxTokenLimit = -1
         tokenView.searchResultHeight = 100
         tokenView.minimumCharactersToSearch = 0 // Show all results without without typing anything

@@ -70,7 +70,7 @@ open class KSTokenField: UITextField {
          }
       }
    }
-   fileprivate var _descriptionText: String = "selections" {
+   fileprivate var _descriptionText: String = NSLocalizedString("%d selections", comment: "description displayed representing all the keywords listed, when collapsed") {
       didSet {
          _updateText()
       }
@@ -83,10 +83,14 @@ open class KSTokenField: UITextField {
    
    /// default is grayColor()
    var placeHolderColor: UIColor = UIColor.gray
-   
+
+    var placeholderFont: UIFont = UIFont.systemFont(ofSize: 16)
+
    /// default is 120.0. After maximum limit is reached, tokens starts scrolling vertically
    var maximumHeight: CGFloat = 120.0
    
+    var style: KSTokenViewStyle?
+
    /// default is nil
    override open var placeholder: String? {
       get {
@@ -120,6 +124,7 @@ open class KSTokenField: UITextField {
             _removesTokensOnEndEditing = tokenView!.removesTokensOnEndEditing
             _descriptionText = tokenView!.descriptionText
             placeHolderColor = tokenView!.placeholderColor
+            placeholderFont = tokenView!.placeholderFont
             promptTextColor = tokenView!.promptColor
             _setPromptText(tokenView!.promptText)
             
@@ -166,7 +171,7 @@ open class KSTokenField: UITextField {
       text = KSTextEmpty
       backgroundColor = UIColor.white
       clipsToBounds = true
-      _state = .closed
+      _state = .opened
       
       _setScrollRect()
       _scrollView.backgroundColor = UIColor.clear
@@ -176,8 +181,6 @@ open class KSTokenField: UITextField {
       _scrollView.addGestureRecognizer(gestureRecognizer)
       _scrollView.delegate = self
       addSubview(_scrollView)
-      
-      addTarget(self, action: #selector(KSTokenField.tokenFieldTextDidChange(_:)), for: UIControlEvents.editingChanged)
    }
    
    fileprivate func _setScrollRect() {
@@ -247,7 +250,7 @@ open class KSTokenField: UITextField {
       
       return token
    }
-   
+    
    fileprivate func _insertToken(_ token: KSToken, shouldLayout: Bool = true) {
       _scrollView.addSubview(token)
       _scrollView.bringSubview(toFront: token)
@@ -338,6 +341,7 @@ open class KSTokenField: UITextField {
          }
       }
       updateLayout()
+    
    }
    
    /**
@@ -374,7 +378,11 @@ open class KSTokenField: UITextField {
          }
       }
    }
-   
+
+    func isClearStyle() -> Bool {
+        return true
+    }
+        
    /**
    Layout tokens
    
@@ -398,35 +406,41 @@ open class KSTokenField: UITextField {
       let rightMargin = _rightViewRect().width
       let tokenHeight = _font!.lineHeight + _paddingY!;
       
-      var tokenPosition = CGPoint(x: _marginX!, y: _marginY!)
+    var tokenPosition = CGPoint(x: isClearStyle() ? 0 : _marginX!, y: _marginY!)
       
       for token: KSToken in tokens {
-         let width = KSUtils.getRect(token.title as NSString, width: bounds.size.width, font: _font!).size.width + ceil(_paddingX!*2+1)
-         let tokenWidth = min(width, token.maxWidth)
-         
+        let tokenWidth:CGFloat
+        if token.cachedWidth == nil {
+            let width = KSUtils.getRect(token.title as NSString, width: bounds.size.width, font: _font!).size.width + ceil(_paddingX!*2)
+            tokenWidth = min(width, token.maxWidth)
+            // we need to cache this width and use it in KSToken instantiation, if we're in style "clear" mode (no background)
+            // otherwise there will be shifting of tokens when selecting/deselecting/adding/removing tokens from view
+            token.cachedWidth = tokenWidth
+        }
+        
          // Add token at specific position
          if ((token.superview) != nil) {
-            if (tokenPosition.x + tokenWidth + _marginX! + leftMargin > bounds.size.width - rightMargin) {
+            if (tokenPosition.x + token.cachedWidth! + _marginX! + leftMargin > bounds.size.width - rightMargin) {
                lineNumber += 1
-               tokenPosition.x = _marginX!
+               tokenPosition.x = isClearStyle() ? 0 : _marginX!
                tokenPosition.y += (tokenHeight + _marginY!);
             }
             
-            token.frame = CGRect(x: tokenPosition.x, y: tokenPosition.y, width: tokenWidth, height: tokenHeight)
-            tokenPosition.x += tokenWidth + _marginX!;
+            token.frame = CGRect(x: tokenPosition.x, y: tokenPosition.y, width: token.cachedWidth!, height: tokenHeight)
+            tokenPosition.x += token.cachedWidth! + _marginX!;
          }
       }
       
       // check if next token can be added in same line or new line
-      if ((bounds.size.width) - (tokenPosition.x + _marginX!) - leftMargin < _minWidthForInput) {
+      if (tokens.count != 0 && (bounds.size.width) - (tokenPosition.x + _marginX!) - leftMargin < _minWidthForInput) {
          lineNumber += 1
-         tokenPosition.x = _marginX!
+         tokenPosition.x = isClearStyle() ? 0 : _marginX!
          tokenPosition.y += (tokenHeight + _marginY!);
       }
       
-      var positionY = (lineNumber == 1 && tokens.count == 0) ? _selfFrame!.size.height: (tokenPosition.y + tokenHeight + _marginY!)
+      var positionY = (tokenPosition.y + tokenHeight + _marginY!)
       _scrollView.contentSize = CGSize(width: _scrollView.frame.width, height: positionY)
-      if (positionY > maximumHeight) {
+      if (maximumHeight != -1 && positionY > maximumHeight) {
          positionY = maximumHeight
       }
       
@@ -486,8 +500,8 @@ open class KSTokenField: UITextField {
    
    fileprivate func _textRectWithBounds(_ bounds: CGRect) -> CGRect {
       if (!_setupCompleted) {return .zero}
-      
-      if (tokens.count == 0 || _caretPoint == nil) {
+    
+      if _caretPoint == nil {
          return CGRect(x: _leftViewRect().width + _marginX! + _bufferX!, y: _leftViewRect().origin.y, width: bounds.size.width-5, height: bounds.size.height)
       }
       
@@ -588,36 +602,53 @@ open class KSTokenField: UITextField {
             
             let width = KSUtils.widthOfString(title, font: font!)
             if width + _leftViewRect().width > bounds.width {
-               text = "\(tokens.count) \(_descriptionText)"
+                text = String(format: _descriptionText, tokens.count)
             } else {
                text = title
             }
          }
          break
       }
-      _updatePlaceHolderVisibility()
+    updatePlaceHolderVisibility(hide: isFirstResponder)
    }
    
-   fileprivate func _updatePlaceHolderVisibility() {
-      if tokens.count == 0 && (text == KSTextEmpty || text!.isEmpty) {
-         _placeholderLabel?.text = _placeholderValue!
-         _placeholderLabel?.sizeToFit()
-         _placeholderLabel?.isHidden = false
-         
-      } else {
-         _placeholderLabel?.isHidden = true
-      }
+    func updatePlaceHolderVisibility(hide: Bool) {
+        guard let placeHolder = _placeholderLabel else { return }
+        
+        placeHolder.isHidden = hide
+        
+//        placeHolder.layer.borderColor = UIColor.magenta.cgColor
+//        placeHolder.layer.borderWidth = 1
+        
+        if hide == false {
+            placeHolder.text = _placeholderValue!
+            placeHolder.sizeToFit()
+            if let caretPoint = _caretPoint {
+                placeHolder.frame.origin.x = isClearStyle() ? _marginX! : caretPoint.x
+                
+                // center the placeholder text
+                var baseY = caretPoint.y - _font!.lineHeight - _paddingY!
+                if baseY < 0 {
+                    baseY = caretPoint.y
+                }
+                if _font!.lineHeight > placeholderFont.lineHeight {
+                    placeHolder.frame.origin.y = baseY + (_font!.lineHeight - placeholderFont.lineHeight)/2
+                } else if _font!.lineHeight < placeholderFont.lineHeight {
+                    placeHolder.frame.origin.y = baseY + (placeholderFont.lineHeight - _font!.lineHeight)/2
+                } else {
+                    placeHolder.frame.origin.y = baseY
+                }
+            }
+        }
    }
    
    fileprivate func _initPlaceholderLabel() {
-      let xPos = _marginX!
+    let xPos = isClearStyle() ? 0 : _marginX!
       if (_placeholderLabel == nil) {
          _placeholderLabel = UILabel(frame: CGRect(x: xPos, y: leftView!.frame.origin.y, width: _selfFrame!.width - xPos - _leftViewRect().size.width, height: _leftViewRect().size.height))
          _placeholderLabel?.textColor = placeHolderColor
-         _placeholderLabel?.font = _font
+         _placeholderLabel?.font = placeholderFont
          _scrollView.addSubview(_placeholderLabel!)
-      } else {
-         _placeholderLabel?.frame.origin.x = xPos
       }
    }
    
@@ -634,8 +665,17 @@ open class KSTokenField: UITextField {
    
    
    func deselectSelectedToken() {
-      selectedToken?.isSelected = false
-      selectedToken = nil
+    if let selectedToken = selectedToken {
+        selectedToken.isSelected = false
+        if tokens.index(of: selectedToken) != (tokens.count - 1) {
+            // don't add delimiter if it's the last token
+            selectedToken.addDelimiter()
+        }
+        if let tokenIndex = tokens.index(of: selectedToken), tokenIndex - 1 >= 0 {
+            tokens[tokenIndex - 1].addDelimiter()
+        }
+    }
+    selectedToken = nil
    }
    
    func selectToken(_ token: KSToken) {
@@ -651,6 +691,7 @@ open class KSTokenField: UITextField {
       
       token.isSelected = true
       selectedToken = token
+        token.removeDelimiter()
       tokenFieldDelegate?.tokenFieldDidSelectToken?(token)
    }
    
@@ -670,10 +711,6 @@ open class KSTokenField: UITextField {
          deselectSelectedToken()
       }
       return super.beginTracking(touch, with: event)
-   }
-   
-   func tokenFieldTextDidChange(_ textField: UITextField) {
-      _updatePlaceHolderVisibility()
    }
    
    // MARK: - Other Methods
@@ -696,11 +733,14 @@ open class KSTokenField: UITextField {
    
    override open func becomeFirstResponder() -> Bool {
       super.becomeFirstResponder()
-      tokenFieldDelegate?.tokenFieldDidBeginEditing?(self)
+    
+    updatePlaceHolderVisibility(hide: true)
+        tokenFieldDelegate?.tokenFieldDidBeginEditing?(self)
       return true
    }
    
    @discardableResult override open func resignFirstResponder() -> Bool {
+    updatePlaceHolderVisibility(hide: false)
       tokenFieldDelegate?.tokenFieldDidEndEditing?(self)
       return super.resignFirstResponder()
    }

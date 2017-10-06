@@ -41,7 +41,7 @@
     self.tokenView.delegate = self;
     self.tokenView.placeholder = @"Type to search";
     self.tokenView.promptText = @"Countries: ";
-    self.tokenView.descriptionText = @"Countries";
+    self.tokenView.descriptionText = NSLocalizedString(@"%d Countries", comment: @"description displayed representing all the keywords listed, when collapsed");
     self.tokenView.separatorText = @", ";
     self.tokenView.activityIndicatorColor = [UIColor redColor];
     [self.view addSubview:self.tokenView];

@@ -28,6 +28,7 @@ import UIKit
 @objc public enum KSTokenViewStyle: Int {
    case rounded
    case squared
+    case clear
 }
 
 @objc public enum KSTokenViewScrollDirection: Int {
@@ -136,6 +137,17 @@ open class KSTokenView: UIView {
    /// default is 1. If set to 0, it shows all search results without typing anything
    open var minimumCharactersToSearch = 1
    
+    /// Height to reduce token field to, if there are no more tokens
+    open var zeroTokenFieldHeight: CGFloat = 30
+    
+    /// perhaps client wants to handle their own searching/displaying of results
+    open var disableResultsHandler = false
+    
+    /// When unselected background color is set to clear, then we need a clear way to show separation
+    /// amongst tokens, so we need to use a delimiter. This delimiter (and management of it during
+    /// selection/deselection events) is only used in this configuration
+    open var listDelimiterWhenUnselectedStateBackgroundColorIsClear = ","
+    
    /// default is nil
    weak open var delegate: KSTokenViewDelegate?
    
@@ -146,6 +158,14 @@ open class KSTokenView: UIView {
       }
    }
    
+    open var placeholderFont: UIFont = UIFont.systemFont(ofSize: 16) {
+        didSet {
+            if (oldValue != placeholderFont && _tokenField != nil) {
+                _tokenField.placeholderFont = placeholderFont
+            }
+        }
+    }
+    
    /// Default is whiteColor
    override open var backgroundColor: UIColor? {
       didSet {
@@ -177,7 +197,8 @@ open class KSTokenView: UIView {
       }
    }
    
-   /// default is 120.0. After maximum limit is reached, tokens starts scrolling vertically
+   /// default is 120.0. After maximum limit is reached, tokens starts scrolling vertically.
+    /// set to -1 to continue to grow vertical height
    open var maximumHeight: CGFloat = 120.0 {
       didSet {
          _tokenField.maximumHeight = maximumHeight
@@ -285,7 +306,7 @@ open class KSTokenView: UIView {
    }
    
    /// Default is "selections"
-   open var descriptionText: String = "selections" {
+   open var descriptionText: String = NSLocalizedString("%d selections", comment: "description displayed representing all the keywords listed, when collapsed") {
       didSet {
          if (oldValue != descriptionText) {
             _updateTokenField()
@@ -388,6 +409,7 @@ open class KSTokenView: UIView {
       backgroundColor = UIColor.clear
       clipsToBounds = true
       _tokenField = KSTokenField(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.bounds.height))
+        _tokenField.style = style
       _tokenField.textColor = UIColor.black
       _tokenField.isEnabled = true
       _tokenField.tokenFieldDelegate = self
@@ -408,6 +430,9 @@ open class KSTokenView: UIView {
       _hideSearchResults()
       _intrinsicContentHeight = _tokenField.bounds.height
       invalidateIntrinsicContentSize()
+//    _tokenField.layer.borderWidth = 1
+//    _tokenField.layer.borderColor = UIColor.darkGray.cgColor
+
    }
    
    //MARK: - Layout Changes
@@ -441,6 +466,10 @@ open class KSTokenView: UIView {
    
    fileprivate func _updateTokenFieldLayout(_ newValue: KSTokenViewStyle) {
       switch (newValue) {
+      case .clear:
+        _tokenField.borderStyle = .none
+        backgroundColor = UIColor.clear
+        
       case .rounded:
          _tokenField.borderStyle = .roundedRect
          backgroundColor = UIColor.clear
@@ -475,7 +504,9 @@ open class KSTokenView: UIView {
       _tokenField.removeToken(token, removingAll: removingAll)
       if (!removingAll) {
          delegate?.tokenView?(self, didDeleteToken: token)
-         _startSearchWithString("")
+        if (minimumCharactersToSearch == 0) {
+            _startSearchWithString("")
+        }
       }
    }
    
@@ -528,7 +559,7 @@ open class KSTokenView: UIView {
    - returns: KSToken object
    */
    @discardableResult open func addTokenWithTitle(_ title: String, tokenObject: AnyObject? = nil) -> KSToken? {
-      let token = KSToken(title: title, object: tokenObject)
+    let token = KSToken(title: title, object: tokenObject)
       return addToken(token)
    }
    
@@ -557,18 +588,25 @@ open class KSTokenView: UIView {
       
       delegate?.tokenView?(self, willAddToken: token)
       var addedToken: KSToken?
+        if style == .clear {
+            if let lastToken = _lastToken() {
+                lastToken.addDelimiter()
+            }
+        }
       if let updatedToken = delegate?.tokenView?(self, shouldChangeAppearanceForToken: token) {
          addedToken = _tokenField.addToken(updatedToken)
-         
       } else {
          addedToken = _tokenField.addToken(token)
       }
-      
+    
       delegate?.tokenView?(self, didAddToken: addedToken!)
       return addedToken
    }
-   
-   
+    
+    open func deselectSelectedToken() {
+        _tokenField.deselectSelectedToken()
+    }
+    
    //MARK: - Delete Token
    //__________________________________________________________________________________
    //
@@ -637,10 +675,18 @@ open class KSTokenView: UIView {
    Deletes selected KSToken object
    */
    open func deleteSelectedToken() {
-      let token: KSToken? = selectedToken()
-      if (token != nil) {
-         _removeToken(token!)
-      }
+    var removeCommaFromLast = false
+    if let token = selectedToken() {
+        if token == _lastToken() {
+            removeCommaFromLast = true
+        }
+        _removeToken(token)
+        if removeCommaFromLast && style == .clear {
+            if let lastToken = _lastToken() {
+                lastToken.removeDelimiter()
+            }
+        }
+    }
    }
    
    /**
@@ -698,16 +744,23 @@ open class KSTokenView: UIView {
       if (!_canAddMoreToken()) {
          return
       }
-      _showEmptyResults()
-      _showActivityIndicator()
-      
-      let trimmedSearchString = string.trimmingCharacters(in: CharacterSet.whitespaces)
-      delegate?.tokenView(self, performSearchWithString:trimmedSearchString, completion: { (results) -> Void in
-         self._hideActivityIndicator()
-         if (results.count > 0) {
-            self._displayData(results)
-         }
-      })
+    
+    let trimmedSearchString = string.trimmingCharacters(in: CharacterSet.whitespaces)
+    if disableResultsHandler == false {
+        _showEmptyResults()
+        _showActivityIndicator()
+        
+        delegate?.tokenView(self, performSearchWithString:trimmedSearchString, completion: { (results) -> Void in
+            self._hideActivityIndicator()
+            if (results.count > 0) {
+                self._displayData(results)
+            }
+        })
+        
+    } else {
+        delegate?.tokenView(self, performSearchWithString:trimmedSearchString, completion: { (results) -> Void in })
+        
+    }
    }
    
    fileprivate func _displayData(_ results: Array<AnyObject>) {
@@ -797,7 +850,8 @@ open class KSTokenView: UIView {
    }
     
     fileprivate func _changeHeight(_ tokenFieldHeight: CGFloat, completion: (() -> Void)? = nil) {
-        let fullHeight = tokenFieldHeight + (_showingSearchResult ? _searchResultHeight : 0.0)
+        let fullHeight: CGFloat
+        fullHeight = tokenFieldHeight + (_showingSearchResult ? _searchResultHeight : 0.0)
         delegate?.tokenView?(self, willChangeFrameWithX: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: fullHeight)
         self._repositionSearchResults(tokenFieldHeight)
         
@@ -810,11 +864,9 @@ open class KSTokenView: UIView {
                 self.invalidateIntrinsicContentSize()
                 self.superview?.layoutIfNeeded()
             },
-            completion: {completed in
+            completion: { _ in
                 completion?()
-                if (completed) {
-                    self.delegate?.tokenView?(self, didChangeFrameWithX: self.frame.origin.x, y: self.frame.origin.y, width: self.frame.size.width, height: fullHeight)
-                }
+                self.delegate?.tokenView?(self, didChangeFrameWithX: self.frame.origin.x, y: self.frame.origin.y, width: self.frame.size.width, height: fullHeight)
         })
     }
    

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Am3-ke-xYS">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Am3-ke-xYS">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -179,6 +179,88 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qtZ-vz-nvI" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1537" y="573"/>
+        </scene>
+        <!--Clear Token Style-->
+        <scene sceneID="sIW-Ed-XvD">
+            <objects>
+                <viewController storyboardIdentifier="ClearTokenStyle" id="J11-1r-epO" customClass="ClearTokenStyle" customModule="Examples" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="gOt-fM-i22"/>
+                        <viewControllerLayoutGuide type="bottom" id="e88-74-MXC"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="cMP-Bl-49z">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="I7B-8D-bPD">
+                                <rect key="frame" x="89.5" y="20" width="196" height="30"/>
+                                <state key="normal" title="Add Token Programmatically">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="addTokenWithSender:" destination="J11-1r-epO" eventType="touchUpInside" id="MRQ-3g-bvx"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="seU-1X-yLy">
+                                <rect key="frame" x="130.5" y="55" width="114" height="30"/>
+                                <state key="normal" title="Delete all tokens">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="deleteAllTokensWithSender:" destination="J11-1r-epO" eventType="touchUpInside" id="VUq-p3-6o3"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YtV-5y-bwZ">
+                                <rect key="frame" x="130" y="93" width="115" height="30"/>
+                                <state key="normal" title="Delete last token">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="deleteLastTokenWithSender:" destination="J11-1r-epO" eventType="touchUpInside" id="JwT-TD-I2H"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Change Appearance" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LhX-YT-n2r">
+                                <rect key="frame" x="20" y="127" width="158" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="Ixf-Eh-BwH"/>
+                                    <constraint firstAttribute="width" constant="158" id="oZ6-74-De2"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kyQ-4b-dnC">
+                                <rect key="frame" x="200" y="122" width="51" height="31"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="49" id="0J4-Z3-x4g"/>
+                                    <constraint firstAttribute="height" constant="31" id="OhJ-OM-YoF"/>
+                                </constraints>
+                            </switch>
+                        </subviews>
+                        <color key="backgroundColor" red="0.2901960784" green="0.6705882353" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="YtV-5y-bwZ" firstAttribute="top" secondItem="seU-1X-yLy" secondAttribute="bottom" constant="8" id="1eI-W7-7b5"/>
+                            <constraint firstAttribute="centerX" secondItem="I7B-8D-bPD" secondAttribute="centerX" id="33U-KK-TQp"/>
+                            <constraint firstItem="kyQ-4b-dnC" firstAttribute="leading" secondItem="LhX-YT-n2r" secondAttribute="trailing" constant="22" id="Dce-7U-lrA"/>
+                            <constraint firstItem="LhX-YT-n2r" firstAttribute="leading" secondItem="cMP-Bl-49z" secondAttribute="leadingMargin" constant="4" id="LEC-2R-ECO"/>
+                            <constraint firstItem="I7B-8D-bPD" firstAttribute="top" secondItem="gOt-fM-i22" secondAttribute="bottom" id="bsy-bH-83k"/>
+                            <constraint firstAttribute="centerX" secondItem="YtV-5y-bwZ" secondAttribute="centerX" id="eex-CA-aNd"/>
+                            <constraint firstItem="seU-1X-yLy" firstAttribute="top" secondItem="I7B-8D-bPD" secondAttribute="bottom" constant="5" id="oSS-GQ-TL5"/>
+                            <constraint firstItem="LhX-YT-n2r" firstAttribute="centerY" secondItem="kyQ-4b-dnC" secondAttribute="centerY" id="pkZ-xu-3Ed"/>
+                            <constraint firstItem="LhX-YT-n2r" firstAttribute="top" secondItem="YtV-5y-bwZ" secondAttribute="bottom" constant="4" id="xRG-a5-L7X"/>
+                            <constraint firstAttribute="centerX" secondItem="seU-1X-yLy" secondAttribute="centerX" id="xpZ-YS-Qu4"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="shouldChangeSwitch" destination="kyQ-4b-dnC" id="4Gt-43-ltY"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="aeM-31-nwf" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1537" y="573"/>
         </scene>

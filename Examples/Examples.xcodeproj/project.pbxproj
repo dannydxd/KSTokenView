@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		48C9E9411F51D1E500FD90AB /* ClearTokenStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C9E9401F51D1E500FD90AB /* ClearTokenStyle.swift */; };
 		C319926A1E603887007ED590 /* KSToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31992661E603887007ED590 /* KSToken.swift */; };
 		C319926B1E603887007ED590 /* KSTokenField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31992671E603887007ED590 /* KSTokenField.swift */; };
 		C319926C1E603887007ED590 /* KSTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C31992681E603887007ED590 /* KSTokenView.swift */; };
@@ -26,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		48C9E9401F51D1E500FD90AB /* ClearTokenStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClearTokenStyle.swift; sourceTree = "<group>"; };
 		C31992661E603887007ED590 /* KSToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KSToken.swift; sourceTree = "<group>"; };
 		C31992671E603887007ED590 /* KSTokenField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KSTokenField.swift; sourceTree = "<group>"; };
 		C31992681E603887007ED590 /* KSTokenView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KSTokenView.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 				C39BEBE11E0037350069F952 /* StackView.swift */,
 				C39BEBDE1E0037350069F952 /* ObjectiveC.h */,
 				C39BEBDF1E0037350069F952 /* ObjectiveC.m */,
+				48C9E9401F51D1E500FD90AB /* ClearTokenStyle.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -198,6 +201,7 @@
 				C39BEBE31E0037350069F952 /* Autolayout.swift in Sources */,
 				C389780F1DFB1FB3009E3D81 /* AppDelegate.swift in Sources */,
 				C39BEBF71E00397C0069F952 /* List.swift in Sources */,
+				48C9E9411F51D1E500FD90AB /* ClearTokenStyle.swift in Sources */,
 				C39BEBE51E0037350069F952 /* ObjectiveC.m in Sources */,
 				C319926D1E603887007ED590 /* KSUtils.swift in Sources */,
 				C39BEBE81E0037350069F952 /* ViewController.swift in Sources */,

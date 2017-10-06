@@ -30,7 +30,7 @@ class ViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     
-    let examples = ["Autolayout", "Programtically", "UIStackView", "Horizontal", "Objective-C"]
+    let examples = ["Autolayout", "Programatically", "Clear Token Style", "UIStackView", "Horizontal", "Objective-C"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,6 +51,9 @@ extension ViewController: UITableViewDelegate {
             
         } else if indexPath.row == 1 {
             vc = storyboard.instantiateViewController(withIdentifier: "Programmatically")
+            
+        } else if indexPath.row == 1 {
+            vc = storyboard.instantiateViewController(withIdentifier: "ClearTokenStyle")
             
         } else if indexPath.row == 2 {
             vc = storyboard.instantiateViewController(withIdentifier: "StackView")
